@@ -1,3 +1,72 @@
+# express
+
+- [**一、下载express**](#一、下载express)
+- [**二、nodemon**](#二、nodemon)
+- [**三、MongoDB**](#三、MongoDB)
+- [**四、mongoose**](#四、mongoose)
+
+### <a id="一、下载express"></a>一、下载express
+
+```
+cnpm install express --save
+```
+
+新建server/server.js
+```javascript
+const express = require('express');
+// 新建app
+const app = express();
+
+app.get('/', function(req, res) {
+  res.send('<h1>Hello world</h1>');
+})
+
+app.get('/data', function(req, res) {
+  res.json({
+    name: 'imooc',
+    type: 'IT'
+  });
+})
+
+app.listen(9093, function() {
+  console.log('Node app start at port 9093');
+})
+```
+```javascript
+// 命令
+cd server
+node server.js
+```
+输入网址：<br>
+localhost:9093 出现hello world <br>
+localhost:9093/data  出现json数据 <br>
+说明express运行成功。
+
+### 二、nodemon
+
+避免修改一次要重启node server.js，下载nodemon, 修改后自动重启
+
+```javascript
+cnpm install -g nodemon
+
+// 运行
+nodemon server.js
+```
+
+### 三、MongoDB
+
+MongoDb安装与环境搭建： [https://www.cnblogs.com/ccyinghua/p/7887713.html](https://www.cnblogs.com/ccyinghua/p/7887713.html)
+
+### 四、mongoose
+
+```
+cnpm install mongoose --save
+```
+mongoose链接mongo：mongodb://127.0.0.1:27017/imooc，并使用imooc这个集合。
+
+mongoose的增删改查操作测试：<br/>
+server/server.js
+```javascript
 const express = require('express');
 const mongoose = require('mongoose');
 
@@ -60,5 +129,11 @@ app.get('/data', function(req, res) {
 app.listen(9093, function() {
   console.log('Node app start at port 9093');
 })
+```
+
+
+
+
+
 
 
