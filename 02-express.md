@@ -42,7 +42,7 @@ localhost:9093 出现hello world <br>
 localhost:9093/data  出现json数据 <br>
 说明express运行成功。
 
-### 二、nodemon
+### <a id="二、nodemon"></a>二、nodemon
 
 避免修改一次要重启node server.js，下载nodemon, 修改后自动重启
 
@@ -53,11 +53,11 @@ cnpm install -g nodemon
 nodemon server.js
 ```
 
-### 三、MongoDB
+### <a id="三、MongoDB"></a>三、MongoDB
 
 MongoDb安装与环境搭建： [https://www.cnblogs.com/ccyinghua/p/7887713.html](https://www.cnblogs.com/ccyinghua/p/7887713.html)
 
-### 四、mongoose
+### <a id="四、mongoose"></a>四、mongoose
 
 ```
 cnpm install mongoose --save

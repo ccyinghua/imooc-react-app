@@ -14,7 +14,7 @@ mongoose.connection.on("connected",function(){
 // 创建一个model模型
 const User = mongoose.model('user', new mongoose.Schema({
   user: {type: String, require: true},
-  age: {type: Number, require: true}    
+  age: {type: Number, require: true}
 }))
 // ---------- mongoose增删改查 -----------
 // 新增一条数据
