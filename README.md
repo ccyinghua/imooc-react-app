@@ -18,3 +18,4 @@
 
 首先将之前项目多余的页面文件去掉，变成一个空项目。src下保留config.js/index.js/reducer.js，在src下建立component(组件)/container(页面性文件)/redux文件夹。
 
+空项目放于demo分支上： [https://github.com/ccyinghua/imooc-react-chat/tree/demo](https://github.com/ccyinghua/imooc-react-chat/tree/demo)
