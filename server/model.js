@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
-
 // 链接mongo 并且使用imooc-chat这个集合，mongo若没有imooc-chat会自动新建
-const DB_URL = "mongodb://127.0.0.1:27017/imooc-chat";
+const DB_URL = "mongodb://localhost:27017/imooc-chat";
 mongoose.connect(DB_URL);
 
 // 连接成功操作

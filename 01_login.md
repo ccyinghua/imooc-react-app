@@ -19,13 +19,14 @@ cnpm install cookie-parser --save
 # 目录
 - [**一、登录与注册基础页面**](#一、登录与注册基础页面)
 - [**二、用户信息校验，跳转判断**](#二、用户信息校验，跳转判断)
-  - [2.1登录与注销](#2.1登录与注销)
-
+- [**三、注册登录交互实现**](#三、注册登录交互实现)
+    - [3.1注册登录后端](#3.1注册登录后端)
+    - [3.2前端交互](#3.2前端交互)
 
 ### <a id="一、登录与注册基础页面"></a>一、登录与注册基础页面
 
 logo组件：
-[src/component/logo]()
+[src/component/logo](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/logo/index.js)
 
 登录页：src/container/login
 ```javascript
@@ -169,7 +170,7 @@ ReactDOM.render(
 
 ### <a id="二、用户信息校验，跳转判断"></a>二、用户信息校验，跳转判断
 
-1、用户信息接口
+1、用户信息接口 <br>
 server/user.js
 ```javascript
 const express = require("express");
@@ -197,12 +198,13 @@ app.listen(9093, function() {
 执行命令：
 ```
 cd server
-node server.js
+nodemon server.js
 ```
 浏览器地址: http://localhost:9093/user/info
-![](./resource/login/1.png)
 
-2、判断跳转组件：src/component/authroute
+![](./resource/01_login/1.jpg)
+
+2、判断跳转组件：[src/component/authroute](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/authroute/index.js)
 
 authroute组件中获取用户信息，获取不到用户信息跳转到login登录页面，authroute组件不是路由组件，无法跳转路由，使用`react-router-dom`的`withRouter`.就可以使用`this.props.history`;
 ```javascript
@@ -210,6 +212,7 @@ import React from "react";
 import axios from "axios";
 import { withRouter } from "react-router-dom";
 
+// 该路由是非路由组件，withRouter 解决this.props.history跳转问题
 @withRouter
 class Authroute extends React.Component {
 	componentDidMount() {
@@ -232,25 +235,93 @@ class Authroute extends React.Component {
 
 export default Authroute;
 ```
-src/index.js
-```javascript
-import Authroute from "./component/authroute";
-......
+### <a id="三、注册登录交互实现"></a>三、注册登录交互实现
 
-// 将store等传递给App组件
-ReactDOM.render(
-	<Provider store={store}>
-		<BrowserRouter>
-			<div>
-				<Authroute></Authroute>
-				<Route path="/login" component={Login} />
-				<Route path="/register" component={Register} />
-			</div>
-		</BrowserRouter>
-	</Provider>,
-	document.getElementById("root")
-);
+#### <a id="3.1注册登录后端"></a>3.1注册登录后端
+
+`body-parser` 解析post请求传过来的json;`cookie-parser`解析cookie;
+```javascript
+// 下载body-parser
+cnpm install body-parser --save
 ```
+[server/server.js](https://github.com/ccyinghua/imooc-react-chat/blob/master/server/server.js) express启动文件;
+[server/model.js](https://github.com/ccyinghua/imooc-react-chat/blob/master/server/model.js) 链接mongoose,建立数据库模型;
+[server/user.js]((https://github.com/ccyinghua/imooc-react-chat/blob/master/server/user.js)) 用户接口文件;
+
+#### <a id="3.2前端交互"></a>3.2前端交互
+[src/redux/user.redux.js](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/redux/user.redux.js)
+
+src/reducer,js
+```javascript
+// 合并所有reducer 并且返回
+import { combineReducers } from "redux";
+import { user } from "./redux/user.redux";
+
+export default combineReducers({ user });
+```
+src/container/login/index.js
+```javascript
+import { connect } from "react-redux";
+import { login } from "../../redux/user.redux";
+
+@connect(
+	state => state.user,
+	{ login }
+)
+......
+// 登录
+handleLogin() {
+    this.props.login(this.state);
+}
+```
+
+src/container/register/index.js
+```javascript
+import { connect } from "react-redux";
+import { login } from "../../redux/user.redux";
+
+// 装饰器模式
+@connect(
+	state => state.user,
+	{ login }
+)
+
+handleLogin() {
+	this.props.login(this.state);
+}
+```
+
+src/component/authroute
+```javascript
+import { loadData } from "../../redux/user.redux";
+import { connect } from "./node_modules/react-redux";
+
+@connect(
+	null,
+	{ loadData }
+)
+
+// 获取用户信息
+axios.get("user/info").then(res => {
+	if (res.status === 200) {
+		if (res.data.code === 0) {
+			// 有登录信息
+			this.props.loadData(res.data.data);
+		} else {
+			this.props.history.push("/login");
+		}
+	}
+});
+```
+注册页面注册账户，成功之后浏览器输入 [http://localhost:9093/user/list](http://localhost:9093/user/list) 验证查看注册账户是否成功。
+
+![](./resource/01_login/2.jpg)
+![](./resource/01_login/3.jpg)
+![](./resource/01_login/4.jpg)
+
+
+
+
 
 
 
