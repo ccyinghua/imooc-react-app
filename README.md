@@ -14,5 +14,5 @@
 
 项目文档：
 
-- [登录与注册](https://github.com/ccyinghua/imooc-react-chat/blob/master/login.md)
+- [登录与注册](https://github.com/ccyinghua/imooc-react-chat/blob/master/01_login.md)
 
