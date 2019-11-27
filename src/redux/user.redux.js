@@ -27,7 +27,8 @@ export function user(state = initState, action) {
 	}
 }
 
-function authSuccess(data) {
+function authSuccess(obj) {
+	const { pwd, ...data } = obj; // redux数据显示去除密码，防止密码泄露
 	return { type: AUTH_AUCCESS, payload: data };
 }
 

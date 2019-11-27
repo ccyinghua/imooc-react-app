@@ -9,6 +9,7 @@ import Login from "./container/login";
 import Register from "./container/register";
 import Authroute from "./component/authroute";
 import BossInfo from "./container/bossinfo";
+import GeniusInfo from "./container/geniusinfo";
 
 import reducers from "./reducer";
 import "./config.js";
@@ -28,6 +29,7 @@ ReactDOM.render(
 				{/* Switch只渲染命中的第一个模板组件 */}
 				<Switch>
 					<Route path="/bossinfo" component={BossInfo} />
+					<Route path="/geniusinfo" component={GeniusInfo} />
 					<Route path="/login" component={Login} />
 					<Route path="/register" component={Register} />
 				</Switch>
