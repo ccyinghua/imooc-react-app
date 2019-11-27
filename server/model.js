@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const DB_URL = "mongodb://localhost:27017/imooc-chat";
 mongoose.connect(DB_URL);
 
+// 解决警告：Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#-findandmodify-
+mongoose.set("useFindAndModify", false);
+
 // 连接成功操作
 mongoose.connection.on("connected", function() {
 	console.log("MongoDB connected success.");
