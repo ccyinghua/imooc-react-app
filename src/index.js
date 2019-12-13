@@ -10,9 +10,11 @@ import Register from "./container/register";
 import Authroute from "./component/authroute";
 import BossInfo from "./container/bossinfo";
 import GeniusInfo from "./container/geniusinfo";
+import Dashboard from "./component/dashboard";
 
 import reducers from "./reducer";
 import "./config.js";
+import "./index.css";
 
 // 新建store
 const store = createStore(
@@ -32,6 +34,7 @@ ReactDOM.render(
 					<Route path="/geniusinfo" component={GeniusInfo} />
 					<Route path="/login" component={Login} />
 					<Route path="/register" component={Register} />
+					<Route component={Dashboard} />
 				</Switch>
 			</div>
 		</BrowserRouter>
