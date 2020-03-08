@@ -17,4 +17,5 @@
 - [登录与注册](https://github.com/ccyinghua/imooc-react-chat/blob/master/01_login.md)
 - [完善信息](https://github.com/ccyinghua/imooc-react-chat/blob/master/02_userInfo.md)
 - [boss与牛人列表](https://github.com/ccyinghua/imooc-react-chat/blob/master/03_list.md)
+- [个人中心与高阶组件](https://github.com/ccyinghua/imooc-react-chat/blob/master/04_user.md)
 

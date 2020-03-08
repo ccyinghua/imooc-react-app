@@ -5,6 +5,49 @@ import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { login } from "../../redux/user.redux";
 
+// 高阶组件
+// // 属性代理
+// function WrapperHello(Comp) {
+// 	class WrapComp extends React.Component {
+// 		render() {
+// 			return (
+// 				<div>
+// 					<p>这是HOC高阶组件特有元素</p>
+// 					<Comp {...this.props}></Comp>
+// 				</div>
+// 			);
+// 		}
+// 	}
+// 	return WrapComp;
+// }
+
+// @WrapperHello
+// class Hello extends React.Component {
+// 	render() {
+// 		return <h2>hello i live haihai</h2>;
+// 	}
+// }
+
+// // 反向继承
+// function WrapperHello(Comp) {
+// 	class WrapComp extends Comp {
+// 		componentDidMount() {
+// 			console.log("高阶组件新增的生命周期，加载完成");
+// 		}
+// 		render() {
+// 			return <Comp></Comp>;
+// 		}
+// 	}
+// 	return WrapComp;
+// }
+
+// @WrapperHello
+// class Hello extends React.Component {
+// 	render() {
+// 		return <h2>hello i live haihai</h2>;
+// 	}
+// }
+
 // 装饰器模式
 @connect(state => state.user, { login })
 class Login extends React.Component {
