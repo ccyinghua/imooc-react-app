@@ -10,9 +10,9 @@ class UserCard extends React.Component {
 	render() {
 		return (
 			<WingBlank>
-				{this.props.userlist.map(v => {
+				{this.props.userlist.map((v, i) => {
 					return v.avatar ? (
-						<div>
+						<div key={i}>
 							<WhiteSpace></WhiteSpace>
 							<Card>
 								<Card.Header

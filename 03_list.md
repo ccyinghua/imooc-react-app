@@ -38,7 +38,7 @@ Router.get("/list", function(req, res) {
 	});
 });
 ```
-查看数据：http://localhost:9093/user/list?type=boss / http://localhost:9093/user/list?type=boss
+查看数据：http://localhost:9093/user/list?type=boss / http://localhost:9093/user/list?type=genius
 ![](./resource/03_list/1.png)
 
 

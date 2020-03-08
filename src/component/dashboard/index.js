@@ -5,13 +5,10 @@ import { Switch, Route } from "react-router-dom";
 import Boss from "../boss";
 import Genius from "../genius";
 import NavLinkBar from "../navLink";
+import User from "../user";
 
 function Msg() {
 	return <div>消息列表页面</div>;
-}
-
-function User() {
-	return <div>个人中心页面</div>;
 }
 
 @connect(state => state)
