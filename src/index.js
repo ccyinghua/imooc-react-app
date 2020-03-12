@@ -11,6 +11,7 @@ import Authroute from "./component/authroute";
 import BossInfo from "./container/bossinfo";
 import GeniusInfo from "./container/geniusinfo";
 import Dashboard from "./component/dashboard";
+import Chat from "./component/chat";
 
 import reducers from "./reducer";
 import "./config.js";
@@ -19,7 +20,10 @@ import "./index.css";
 // 新建store
 const store = createStore(
 	reducers,
-	compose(applyMiddleware(thunk), window.devToolsExtension ? window.devToolsExtension() : f => f)
+	compose(
+		applyMiddleware(thunk),
+		window.devToolsExtension ? window.devToolsExtension() : f => f
+	)
 );
 
 // 将store等传递给App组件
@@ -34,6 +38,7 @@ ReactDOM.render(
 					<Route path="/geniusinfo" component={GeniusInfo} />
 					<Route path="/login" component={Login} />
 					<Route path="/register" component={Register} />
+					<Route path="/chat/:user" component={Chat} />
 					<Route component={Dashboard} />
 				</Switch>
 			</div>
