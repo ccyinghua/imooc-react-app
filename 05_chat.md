@@ -344,7 +344,8 @@ import { withRouter } from "react-router-dom";
 @withRouter
 class UserCard extends React.Component {
 	handleClick(v) {
-		this.props.history.push(`chat/${v.user}`);
+		// v._id用户在mongoDB的唯一标识
+		this.props.history.push(`chat/${v._id}`);
 	}
 	......
 }
