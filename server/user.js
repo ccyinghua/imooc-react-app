@@ -4,7 +4,11 @@ const utils = require("utility");
 const Router = express.Router();
 const model = require("./model");
 const User = model.getModel("user");
+const Chat = model.getModel("chat");
 const _filter = { pwd: 0, __v: 0 };
+
+// 清空聊天记录
+// Chat.remove({}, function(e, d) {});
 
 Router.get("/list", function(req, res) {
 	const { type } = req.query;
@@ -73,6 +77,17 @@ Router.get("/info", function(req, res) {
 		}
 	});
 	// 用户有没有cookie
+});
+
+// 获取聊天列表
+Router.get("/getmsglist", function(req, res) {
+	const users = req.cookies.user;
+	// {"$or":[{form: user, to: user}]}
+	Chat.find({}, function(err, doc) {
+		if (!err) {
+			return res.json({ code: 0, msgs: doc });
+		}
+	});
 });
 
 function md5Pwd(pwd) {

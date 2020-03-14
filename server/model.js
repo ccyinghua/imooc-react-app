@@ -26,7 +26,15 @@ const models = {
 		company: { type: String },
 		money: { type: String }
 	},
-	chat: {}
+	// 聊天模型
+	chat: {
+		chatid: { type: String, require: true },
+		from: { type: String, require: true }, // 发消息的用户id
+		to: { type: String, require: true }, // 接消息的用户id
+		read: { type: Boolean, default: false }, // 已读未读
+		content: { type: String, require: true, default: "" },
+		create_time: { type: Number, default: new Date().getTime() }
+	}
 };
 
 for (let m in models) {
