@@ -6,13 +6,22 @@ import Boss from "../boss";
 import Genius from "../genius";
 import NavLinkBar from "../navLink";
 import User from "../user";
+import { getMegList, recvMsg } from "../../redux/chat.redux";
 
 function Msg() {
 	return <div>消息列表页面</div>;
 }
 
-@connect(state => state)
+@connect(
+	state => state,
+	{ getMegList, recvMsg }
+)
 class Dashboard extends React.Component {
+	componentDidMount() {
+		this.props.getMegList();
+		this.props.recvMsg();
+	}
+
 	render() {
 		const { pathname } = this.props.location;
 		const user = this.props.user;

@@ -21,8 +21,9 @@ class Chat extends React.Component {
 		// socket.on("recvmsg", data => {
 		// 	console.log(data);
 		// });
-		this.props.getMegList();
-		this.props.recvMsg();
+
+		// this.props.getMegList();
+		// this.props.recvMsg();
 	}
 	handleSubmit() {
 		// 点击发送按钮：向后端发送sendmsg事件，将要发送的数据带过去
@@ -46,12 +47,12 @@ class Chat extends React.Component {
 							<List.Item>{v.content}</List.Item>
 						</List>
 					) : (
-						<List key={v._id}>
-							<List.Item extra={""} className="chat-me">
-								{v.content}
-							</List.Item>
-						</List>
-					);
+							<List key={v._id}>
+								<List.Item extra={""} className="chat-me">
+									{v.content}
+								</List.Item>
+							</List>
+						);
 				})}
 				<div className="stick-footer">
 					<List>

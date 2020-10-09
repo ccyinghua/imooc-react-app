@@ -6,6 +6,9 @@
 	- [2.1添加聊天路由界面](#2.1添加聊天路由界面)
 	- [2.2socket前后端消息互通](#2.2socket前后端消息互通)
 - [**三、聊天功能实现**](#三、聊天功能实现)
+	- [3.1聊天功能](#3.1聊天功能)
+	- [3.2未读消息数](#3.2未读消息数)
+	- [3.3聊天头像与名称](#3.3聊天头像与名称)
 
 
 ### <a id="一、Socket.io"></a>一、Socket.io
@@ -190,12 +193,14 @@ genius登录：genius 123<br>
 两个聊天界面互相发送消息，前端发送sendmsg携带数据给后台，后台接收数据再发送全局recvmsg事件给前端接收，前端可以拿到两个人聊天的所有数据，形成聊天界面。
 
 boss登录的与genius的聊天界面：http://localhost:3000/chat/genius<br>
-genius登录的与boss的聊天界面：http://localhost:3000/chat/boss
-![](./resource/05_chat/3.png)
-![](./resource/05_chat/4.png)
+genius登录的与boss的聊天界面：http://localhost:3000/chat/boss<br>
+![](./resource/05_chat/3.png)<br>
+![](./resource/05_chat/4.png)<br>
 ![](./resource/05_chat/5.png)
 
 ### <a id="三、聊天功能实现"></a>三、聊天功能实现
+
+### <a id="3.1聊天功能"></a>3.1聊天功能
 
 - #### 后端
 
@@ -434,3 +439,69 @@ boss登录的聊天界面：<br>
 ![](./resource/05_chat/6.png)<br>
 genius登录的聊天界面：<br>
 ![](./resource/05_chat/7.png)
+
+### <a id="3.2未读消息数"></a>3.2未读消息数
+本来是在聊天页面`src/component/chat`实时获取消息列表与接收消息的，现需要在dashboard首页显示未读消息数，将实时获取消息列表与接收消息的操作移动到[src/component/dashboard](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/dashboard/index.js)
+
+聊天页面src/component/chat
+```javascript
+class Chat extends React.Component {
+	......
+	componentDidMount() {
+		// this.props.getMegList();
+		// this.props.recvMsg();
+	}
+	......
+}
+```
+
+首页[src/component/dashboard](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/dashboard/index.js)
+```javascript
+import { getMegList, recvMsg } from "../../redux/chat.redux";
+
+@connect(
+	state => state,
+	{ getMegList, recvMsg }
+)
+class Dashboard extends React.Component {
+	componentDidMount() {
+		this.props.getMegList();
+		this.props.recvMsg();
+	}
+	......
+}
+```
+
+首页底部的tabBar组件[src/component/navLink](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/navLink/index.js)
+```javascript
+import { connect } from "react-redux";
+
+@connect(state => state.chat)
+class NavLinkBar extends React.Component {
+	...
+	render() {
+		return (
+			<TabBar>
+				{navList.map(v => {
+					return (
+						<TabBar.Item 
+							badge={v.path === "/msg" ? this.props.unread : 0}
+							...
+						></TabBar.Item>
+					);
+				})}
+			</TabBar>
+		);
+	}
+}
+```
+两个浏览器，localhost:3000/login登录界面；<br>
+boss登录：boss 123<br>
+genius登录：genius 123<br>
+genius登录的进入与boss的聊天界面，发送消息<br>
+boss登录的首页：<br>
+![](./resource/05_chat/8.png)<br>
+
+
+### <a id="3.3聊天头像与名称"></a>3.3聊天头像与名称
+
