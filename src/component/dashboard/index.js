@@ -18,8 +18,11 @@ function Msg() {
 )
 class Dashboard extends React.Component {
 	componentDidMount() {
-		this.props.getMegList();
-		this.props.recvMsg();
+		// 添加判断，防止来回切换重复获取消息
+		if (!this.props.chat.chatmsg.length) {
+			this.props.getMegList();
+			this.props.recvMsg();
+		}
 	}
 
 	render() {

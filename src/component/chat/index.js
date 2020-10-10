@@ -1,7 +1,8 @@
 import React from "react";
-import { List, InputItem, NavBar } from "antd-mobile";
+import { List, InputItem, NavBar, Icon } from "antd-mobile";
 import { connect } from "react-redux";
 import { getMegList, sendMsg, recvMsg } from "../../redux/chat.redux";
+import { getChatId } from "../../util";
 // import io from "socket.io-client";
 // const socket = io("ws://localhost:9093");
 
@@ -22,8 +23,11 @@ class Chat extends React.Component {
 		// 	console.log(data);
 		// });
 
-		// this.props.getMegList();
-		// this.props.recvMsg();
+		// 添加判断，在页面刷新时获取，从首页进入时，首页已经获取消息了。
+		if (!this.props.chat.chatmsg.length) {
+			this.props.getMegList();
+			this.props.recvMsg();
+		}
 	}
 	handleSubmit() {
 		// 点击发送按钮：向后端发送sendmsg事件，将要发送的数据带过去
@@ -37,18 +41,37 @@ class Chat extends React.Component {
 		this.setState({ text: "" });
 	}
 	render() {
-		const user = this.props.match.params.user;
+		const userid = this.props.match.params.user;
+
+		const users = this.props.chat.users || {};
+
+		if (!users[userid]) {
+			return null;
+		}
+
+		const chatid = getChatId(userid, this.props.user._id);
+		// this.props.chat.chatmsg是所有的消息列表，
+		const chatmsgs = this.props.chat.chatmsg.filter(v => v.chatid === chatid);
+
 		return (
 			<div id="chat-page">
-				<NavBar mode="dark">{this.props.match.params.user}</NavBar>
-				{this.props.chat.chatmsg.map(v => {
-					return v.from === user ? (
+				<NavBar
+					mode="dark"
+					icon={<Icon type="left" />}
+					onLeftClick={() => {
+						this.props.history.goBack();
+					}}>
+					{users[userid].name}
+				</NavBar>
+				{chatmsgs.map(v => {
+					const avatar = require(`../assets/img/${users[v.from].avatar}.png`);
+					return v.from === userid ? (
 						<List key={v._id}>
-							<List.Item>{v.content}</List.Item>
+							<List.Item thumb={avatar}>{v.content}</List.Item>
 						</List>
 					) : (
 							<List key={v._id}>
-								<List.Item extra={""} className="chat-me">
+								<List.Item extra={<img src={avatar} />} className="chat-me">
 									{v.content}
 								</List.Item>
 							</List>
@@ -62,8 +85,7 @@ class Chat extends React.Component {
 							onChange={v => {
 								this.setState({ text: v });
 							}}
-							extra={<span onClick={() => this.handleSubmit()}>发送</span>}
-						></InputItem>
+							extra={<span onClick={() => this.handleSubmit()}>发送</span>}></InputItem>
 					</List>
 				</div>
 			</div>

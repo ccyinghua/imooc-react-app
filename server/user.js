@@ -81,13 +81,28 @@ Router.get("/info", function(req, res) {
 
 // 获取聊天列表
 Router.get("/getmsglist", function(req, res) {
-	const users = req.cookies.user;
-	// {"$or":[{form: user, to: user}]}
-	Chat.find({}, function(err, doc) {
-		if (!err) {
-			return res.json({ code: 0, msgs: doc });
-		}
+	// const user = req.cookies.user;
+
+	const user = req.cookies.userid;
+
+	User.find({}, function(e, userdoc) {
+		let users = {};
+		userdoc.forEach(v => {
+			users[v._id] = { name: v.user, avatar: v.avatar };
+		});
+
+		Chat.find({ $or: [{ from: user }, { to: user }] }, function(err, doc) {
+			if (!err) {
+				return res.json({ code: 0, msgs: doc, users: users });
+			}
+		});
 	});
+
+	// Chat.find({}, function(err, doc) {
+	// 	if (!err) {
+	// 		return res.json({ code: 0, msgs: doc });
+	// 	}
+	// });
 });
 
 function md5Pwd(pwd) {

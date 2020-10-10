@@ -8,7 +8,7 @@
 - [**三、聊天功能实现**](#三、聊天功能实现)
 	- [3.1聊天功能](#3.1聊天功能)
 	- [3.2未读消息数](#3.2未读消息数)
-	- [3.3聊天头像与名称](#3.3聊天头像与名称)
+	- [3.3聊天头像名称与未读消息调整](#3.3聊天头像名称与未读消息调整)
 
 
 ### <a id="一、Socket.io"></a>一、Socket.io
@@ -441,15 +441,18 @@ genius登录的聊天界面：<br>
 ![](./resource/05_chat/7.png)
 
 ### <a id="3.2未读消息数"></a>3.2未读消息数
-本来是在聊天页面`src/component/chat`实时获取消息列表与接收消息的，现需要在dashboard首页显示未读消息数，将实时获取消息列表与接收消息的操作移动到[src/component/dashboard](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/dashboard/index.js)
+本来是在聊天页面`src/component/chat`实时获取消息列表与接收消息的，现需要在dashboard首页显示未读消息数，在首页[src/component/dashboard](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/dashboard/index.js)也添加获取消息与接收
 
 聊天页面src/component/chat
 ```javascript
 class Chat extends React.Component {
 	......
 	componentDidMount() {
-		// this.props.getMegList();
-		// this.props.recvMsg();
+		// 添加判断，在页面刷新时获取，从首页进入时，首页已经获取消息了。
+		if (!this.props.chat.chatmsg.length) {
+			this.props.getMegList();
+			this.props.recvMsg();
+		}
 	}
 	......
 }
@@ -465,8 +468,11 @@ import { getMegList, recvMsg } from "../../redux/chat.redux";
 )
 class Dashboard extends React.Component {
 	componentDidMount() {
-		this.props.getMegList();
-		this.props.recvMsg();
+		// 添加判断，防止来回切换重复获取消息
+		if (!this.props.chat.chatmsg.length) {
+			this.props.getMegList();
+			this.props.recvMsg();
+		}
 	}
 	......
 }
@@ -503,5 +509,166 @@ boss登录的首页：<br>
 ![](./resource/05_chat/8.png)<br>
 
 
-### <a id="3.3聊天头像与名称"></a>3.3聊天头像与名称
+### <a id="3.3聊天头像名称与未读消息调整"></a>3.3聊天头像名称与未读消息调整
+
+后端调整[server/user.js](https://github.com/ccyinghua/imooc-react-chat/blob/master/server/user.js)，聊天列表返回所有的关于登录人的消息，还有所有用户的头像与名称。
+```javascript
+// 获取聊天列表
+Router.get("/getmsglist", function(req, res) {
+	// const user = req.cookies.user;
+	const user = req.cookies.userid;
+
+	User.find({}, function(e, userdoc) {
+		let users = {};
+		userdoc.forEach(v => {
+			users[v._id] = { name: v.user, avatar: v.avatar };
+		});
+
+		Chat.find({ $or: [{ from: user }, { to: user }] }, function(err, doc) {
+			if (!err) {
+				return res.json({ code: 0, msgs: doc, users: users });
+			}
+		});
+	});
+
+	// Chat.find({}, function(err, doc) {
+	// 	if (!err) {
+	// 		return res.json({ code: 0, msgs: doc });
+	// 	}
+	// });
+});
+```
+前端:聊天redux添加users，储存所有用户头像与姓名[src/redux/chat.redux.js](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/redux/chat.redux.js)，修正消息未读个数`unread`，只有发送给登录人的消息才是未读的，发出去的不在范围内。
+
+```javascript
+import axios from "axios";
+import io from "socket.io-client";
+
+const socket = io("ws://localhost:9093");
+
+// 获取聊天列表
+const MSG_LIST = "MSG_LIST";
+// 读取信息
+const MSG_RECV = "MSG_RECV";
+// 标识已读
+const MSG_READ = "MSG_READ";
+
+const initState = {
+	chatmsg: [],
+	users: {},
+	unread: 0 // 未读消息的数量
+};
+
+// reducer处理函数
+export function chat(state = initState, action) {
+	switch (action.type) {
+		case MSG_LIST:
+			return { ...state, users: action.payload.users, chatmsg: action.payload.msgs, unread: action.payload.msgs.filter(v => !v.read && v.to == action.payload.userid).length };
+		case MSG_RECV:
+			const n = action.payload.to === action.userid ? 1 : 0;
+			return { ...state, chatmsg: [...state.chatmsg, action.payload], unread: state.unread + n };
+		case MSG_READ:
+			return { ...state, isAuth: false, msg: action.msg };
+		default:
+			return state;
+	}
+}
+
+function msgList(msgs, users, userid) {
+	return { type: MSG_LIST, payload: { msgs, users, userid } };
+}
+
+function msgRecv(msg, userid) {
+	return { type: MSG_RECV, payload: msg, userid };
+}
+
+// 获取消息列表
+export function getMegList(userinfo) {
+	return (dispatch, getState) => {
+		axios.get("/user/getmsglist").then(res => {
+			if (res.status === 200 && res.data.code === 0) {
+				const userid = getState().user._id;
+				dispatch(msgList(res.data.msgs, res.data.users, userid));
+			}
+		});
+	};
+}
+
+// 发送信息
+export function sendMsg({ from, to, msg }) {
+	return dispatch => {
+		// console.log({ from, to, msg });
+		socket.emit("sendmsg", { from, to, msg });
+	};
+}
+
+// 接收信息
+export function recvMsg() {
+	return (dispatch, getState) => {
+		// 接收全局recvmsg
+		socket.on("recvmsg", data => {
+			// console.log("recvmsg", data);
+			const userid = getState().user._id;
+			dispatch(msgRecv(data, userid));
+		});
+	};
+}
+```
+![](./resource/05_chat/9.png)<br>
+
+[src/util.js](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/util.js)
+```javascript
+/**
+ * 获取chatid
+ * @param {*} userId 聊天对象的id
+ * @param {*} targetId 本人即登录人的id
+ */
+export function getChatId(userId, targetId) {
+	return [userId, targetId].sort().join("_");
+}
+```
+聊天界面修改[src/component/chat](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/chat/index.js)，添加头像与名称，并对消息列表进行过滤，只筛选出登录人与当前聊天人的消息。
+```javascript
+render() {
+	const userid = this.props.match.params.user;
+
+	const users = this.props.chat.users || {};
+
+	if (!users[userid]) {
+		return null;
+	}
+
+	const chatid = getChatId(userid, this.props.user._id);
+	const chatmsgs = this.props.chat.chatmsg.filter(v => v.chatid === chatid);
+
+	return (
+		<div id="chat-page">
+			<NavBar
+				mode="dark"
+				icon={<Icon type="left" />}
+				onLeftClick={() => {
+					this.props.history.goBack();
+				}}>
+				{users[userid].name}
+			</NavBar>
+			{chatmsgs.map(v => {
+				const avatar = require(`../assets/img/${users[v.from].avatar}.png`);
+				return v.from === userid ? (
+					<List key={v._id}>
+						<List.Item thumb={avatar}>{v.content}</List.Item>
+					</List>
+				) : (
+						<List key={v._id}>
+							<List.Item extra={<img src={avatar} />} className="chat-me">
+								{v.content}
+							</List.Item>
+						</List>
+					);
+			})}
+			......
+		</div>
+	);
+}
+```
+
 
