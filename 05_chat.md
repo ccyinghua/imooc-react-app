@@ -9,6 +9,7 @@
 	- [3.1聊天功能](#3.1聊天功能)
 	- [3.2未读消息数](#3.2未读消息数)
 	- [3.3聊天头像名称与未读消息调整](#3.3聊天头像名称与未读消息调整)
+	- [3.4发送emoji表情](#3.4发送emoji表情)
 
 
 ### <a id="一、Socket.io"></a>一、Socket.io
@@ -639,6 +640,7 @@ render() {
 	}
 
 	const chatid = getChatId(userid, this.props.user._id);
+	// this.props.chat.chatmsg是所有的消息列表
 	const chatmsgs = this.props.chat.chatmsg.filter(v => v.chatid === chatid);
 
 	return (
@@ -670,5 +672,99 @@ render() {
 	);
 }
 ```
+
+### <a id="3.4发送emoji表情"></a>3.4发送emoji表情
+
+聊天界面[src/component/chat](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/chat/index.js)
+
+```javascript
+import React from "react";
+import { List, InputItem, NavBar, Icon, Grid } from "antd-mobile";
+import { connect } from "react-redux";
+import { getMegList, sendMsg, recvMsg } from "../../redux/chat.redux";
+import { getChatId } from "../../util";
+// import io from "socket.io-client";
+// const socket = io("ws://localhost:9093");
+
+@connect(
+	state => state,
+	{ getMegList, sendMsg, recvMsg }
+)
+class Chat extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			text: "",
+			showEmoji: false
+		};
+	}
+	
+	fixCarousel() {
+		setTimeout(() => {
+			window.dispatchEvent(new Event("resize"));
+		}, 0);
+	}
+	handleSubmit() {
+		......
+		this.setState({ text: "", showEmoji: false });
+	}
+	render() {
+		const emoji = "😀 😁 😂 😃 😄 😅 😆 😉 😊 😋 😎 😍 😘 😗 😙 😚 😇 😐 😑 😶 😏 😣 😥 😮 😯 😪 😫 😴 😌 😛 😜 😝 😒 😓 😔 😕 😲 😷 😖 😞 😟 😤 😢 😭 😦 😧 😨 😬 😰 😱 😳 😵 😡 😠"
+			.split(" ")
+			.filter(v => v)
+			.map(v => ({ text: v }));
+		......
+
+		return (
+			<div id="chat-page">
+				......
+				<div className="stick-footer">
+					<List>
+						<InputItem
+							placeholder="请输入"
+							value={this.state.text}
+							onChange={v => {
+								this.setState({ text: v });
+							}}
+							extra={
+								<div>
+									{/* eslint-disable */}
+									<span
+										style={{ marginRight: 15 }}
+										onClick={() => {
+											this.setState({ showEmoji: !this.state.showEmoji });
+											this.fixCarousel();
+										}}
+									>
+										😀
+									</span>
+									<span onClick={() => this.handleSubmit()}>发送</span>
+								</div>
+							}
+						></InputItem>
+					</List>
+
+					{this.state.showEmoji ? (
+						<Grid
+							data={emoji}
+							columnNum={9}
+							carouselMaxRow={4}
+							isCarousel={true}
+							onClick={el => {
+								this.setState({
+									text: this.state.text + el.text
+								});
+							}}
+						/>
+					) : null}
+				</div>
+			</div>
+		);
+	}
+}
+
+export default Chat;
+```
+![](./resource/05_chat/10.png)
 
 
