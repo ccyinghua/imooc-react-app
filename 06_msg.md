@@ -220,6 +220,7 @@ export default Chat;
 
 [src/component/dashboard](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/dashboard/index.js)
 ```javascript
+import { Route, Redirect } from "react-router-dom";
 import QueueAnim from 'rc-queue-anim';
 
 class Dashboard extends React.Component {
@@ -228,7 +229,7 @@ class Dashboard extends React.Component {
 		// 让动画生效，只渲染一个Route,根据当前的path决定
 		const page = navList.find(v => v.path === pathname);
 
-		return (
+		return page ? (
 			<div>
 				...
 				<div style={{ marginTop: 45 }}>
@@ -244,7 +245,7 @@ class Dashboard extends React.Component {
 				</div>
 				...
 			</div>
-		);
+		) : <Redirect to="/msg"></Redirect>;
 	}
 }
 
