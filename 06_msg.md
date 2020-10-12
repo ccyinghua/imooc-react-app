@@ -2,14 +2,7 @@
 
 # 目录
 - [**一、聊天列表**](#一、聊天列表)
-<!-- - [**二、前后端实时显示消息**](#二、前后端实时显示消息)
-	- [2.1添加聊天路由界面](#2.1添加聊天路由界面)
-	- [2.2socket前后端消息互通](#2.2socket前后端消息互通)
-- [**三、聊天功能实现**](#三、聊天功能实现)
-	- [3.1聊天功能](#3.1聊天功能)
-	- [3.2未读消息数](#3.2未读消息数)
-	- [3.3聊天头像名称与未读消息调整](#3.3聊天头像名称与未读消息调整)
-	- [3.4发送emoji表情](#3.4发送emoji表情) -->
+- [**二、消息未读数更新**](#二、消息未读数更新)
 
 
 ### <a id="一、聊天列表"></a>一、聊天列表
@@ -83,6 +76,102 @@ export default Msg;
 ```
 ![](./resource/06_msg/1.png)
 
-<!-- - ### <a id="2.1添加聊天路由界面"></a>2.1添加聊天路由界面 -->
+### <a id="二、消息未读数更新"></a>二、消息未读数更新
+当在聊天界面返回列表时，与当前聊天对象的消息都应该标识成已读。
 
+- #### 后端
+[server/user.js](https://github.com/ccyinghua/imooc-react-chat/blob/master/server/user.js)添加已读接口
+```javascript
+Router.post('/readmsg', function (req, res) {
+	const { userid } = req.cookies;
+	const { from } = req.body;
 
+	Chat.update(
+		{ from, to: userid },
+		{ '$set': { read: true } },
+		{ 'multi': true },
+		function (err, doc) {
+			// doc: {n: 1, nModified: 0, ok: 1} n-消息数,nModified-修改了几条,ok修改是否成功
+			if (!err) {
+				return res.json({ code: 0, num: doc.nModified });
+			}
+			return res.json({ code: 1, msg: "修改失败" });
+		});
+})
+```
+- #### 前端
+聊天界面[src/component/chat](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/chat/index.js)
+```javascript
+import { getMegList, sendMsg, recvMsg, readMsg } from "../../redux/chat.redux";
+
+@connect(
+	state => state,
+	{ getMegList, sendMsg, recvMsg, readMsg }
+)
+class Chat extends React.Component {
+	......
+	componentWillUnmount() {
+		const to = this.props.match.params.user; // 聊天对象id
+		this.props.readMsg(to)
+	}
+	......
+}
+
+export default Chat;
+```
+
+chat聊天redux: [src/redux/chat.redux.js](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/redux/chat.redux.js)
+```javascript
+import axios from "axios";
+import io from "socket.io-client";
+
+const socket = io("ws://localhost:9093");
+
+// 获取聊天列表
+const MSG_LIST = "MSG_LIST";
+// 读取信息
+const MSG_RECV = "MSG_RECV";
+// 标识已读
+const MSG_READ = "MSG_READ";
+
+const initState = {
+	chatmsg: [],
+	users: {},
+	unread: 0 // 未读消息的数量
+};
+
+// reducer处理函数
+export function chat(state = initState, action) {
+	switch (action.type) {
+		......
+		case MSG_READ:
+			return {
+				...state, chatmsg: state.chatmsg.map(v => ({ ...v, read: v.from === action.payload.from ? true : v.read })), unread: state.unread - action.payload.num
+			};
+		default:
+			return state;
+	}
+}
+
+function msgRead({ from, userid, num }) {
+	return { type: MSG_READ, payload: { from, userid, num } }
+}
+
+// 标识已读消息
+export function readMsg(from) {
+	return (dispatch, getState) => {
+		axios.post('/user/readmsg', { from }).then(res => {
+			const userid = getState().user._id;
+			if (res.status === 200 && res.data.code === 0) {
+				const userid = getState().user._id;
+				dispatch(msgRead({ userid, from, num: res.data.num }));
+			}
+		})
+	}
+}
+```
+两个浏览器，localhost:3000/login登录界面；<br>
+boss登录：我是boss 123<br>
+genius登录：genius2 123<br>
+![](./resource/06_msg/2.png)<br>
+![](./resource/06_msg/3.png)<br>
