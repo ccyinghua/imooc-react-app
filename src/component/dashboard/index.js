@@ -1,13 +1,14 @@
 import React from "react";
 import { connect } from "react-redux";
 import { NavBar } from "antd-mobile";
-import { Switch, Route } from "react-router-dom";
+import { Route } from "react-router-dom";
 import Boss from "../boss";
 import Genius from "../genius";
 import NavLinkBar from "../navLink";
 import User from "../user";
 import Msg from "../msg";
 import { getMegList, recvMsg } from "../../redux/chat.redux";
+import QueueAnim from 'rc-queue-anim';
 
 @connect(
 	state => state,
@@ -58,17 +59,24 @@ class Dashboard extends React.Component {
 			}
 		];
 
+		// 让动画生效，只渲染一个Route,根据当前的path决定
+		const page = navList.find(v => v.path === pathname);
+
 		return (
 			<div>
 				<NavBar mode="dark" className="fixed-header">
 					{navList.find(v => v.path === pathname) ? navList.find(v => v.path === pathname).title : ""}
 				</NavBar>
 				<div style={{ marginTop: 45 }}>
-					<Switch>
+					{/* Switch只渲染命中的第一个模板组件 */}
+					{/* <Switch>
 						{navList.map(v => (
 							<Route key={v.path} path={v.path} component={v.component} />
 						))}
-					</Switch>
+					</Switch> */}
+					<QueueAnim type="scaleX" duration={800}>
+						<Route key={page.path} path={page.path} component={page.component} />
+					</QueueAnim>
 				</div>
 				<NavLinkBar data={navList} />
 			</div>

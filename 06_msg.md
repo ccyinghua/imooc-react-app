@@ -3,6 +3,7 @@
 # 目录
 - [**一、聊天列表**](#一、聊天列表)
 - [**二、消息未读数更新**](#二、消息未读数更新)
+- [**三、动画效果**](#三、动画效果)
 
 
 ### <a id="一、聊天列表"></a>一、聊天列表
@@ -175,3 +176,78 @@ boss登录：我是boss 123<br>
 genius登录：genius2 123<br>
 ![](./resource/06_msg/2.png)<br>
 ![](./resource/06_msg/3.png)<br>
+
+### <a id="三、动画效果"></a>三、动画效果
+添加[ant motion](https://motion.ant.design/index-cn)
+```javascript
+cnpm install rc-queue-anim --save
+```
+聊天界面[src/component/chat](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/chat/index.js)
+```javascript
+import QueueAnim from 'rc-queue-anim';
+
+class Chat extends React.Component {
+	......
+	render() {
+		return (
+			<div id="chat-page">
+				...
+				<QueueAnim>
+					{chatmsgs.map(v => {
+						const avatar = require(`../assets/img/${users[v.from].avatar}.png`);
+						return v.from === userid ? (
+							<List key={v._id}>
+								<List.Item thumb={avatar}>{v.content}</List.Item>
+							</List>
+						) : (
+								<List key={v._id}>
+									<List.Item extra={<img src={avatar} alt="" />} className="chat-me">
+										{v.content}
+									</List.Item>
+								</List>
+							);
+					})}
+				</QueueAnim>
+				...
+			</div>
+		);
+	}
+}
+
+export default Chat;
+```
+![](./resource/06_msg/4.gif)<br>
+
+[src/component/dashboard](https://github.com/ccyinghua/imooc-react-chat/blob/master/src/component/dashboard/index.js)
+```javascript
+import QueueAnim from 'rc-queue-anim';
+
+class Dashboard extends React.Component {
+	render() {
+		......
+		// 让动画生效，只渲染一个Route,根据当前的path决定
+		const page = navList.find(v => v.path === pathname);
+
+		return (
+			<div>
+				...
+				<div style={{ marginTop: 45 }}>
+					{/* Switch只渲染命中的第一个模板组件 */}
+					{/* <Switch>
+						{navList.map(v => (
+							<Route key={v.path} path={v.path} component={v.component} />
+						))}
+					</Switch> */}
+					<QueueAnim type="scaleX" duration={800}>
+						<Route key={page.path} path={page.path} component={page.component} />
+					</QueueAnim>
+				</div>
+				...
+			</div>
+		);
+	}
+}
+
+export default Dashboard;
+```
+![](./resource/06_msg/5.gif)
